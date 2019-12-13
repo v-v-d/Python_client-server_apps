@@ -2,3 +2,4 @@ jupyter
 jupyterthemes
 chardet
 requests
+pyyaml

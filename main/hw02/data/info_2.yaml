@@ -1,0 +1,6 @@
+orders:
+- buyer: Ivan
+  date: 12.12.2019
+  item: product
+  price: 100500
+  quantity: 10
