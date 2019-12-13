@@ -11,17 +11,21 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-host = 'localhost'
-port = 8000
+default_config = {
+    'host': 'localhost',
+    'port': 8000,
+    'buffersize': 1024,
+}
 
 if args.config:
     with open(args.config) as file:
-        config = yaml.load(file, Loader=yaml.Loader)
-        host = config.get('host', host)
-        port = config.get('port', port)
+        file_config = yaml.load(file, Loader=yaml.Loader)
+        default_config.update(file_config)
 
 sock = socket()
-sock.connect((host, port,))
+sock.connect(
+    (default_config.get('host'), default_config.get('port'))
+)
 
 print('Client was started')
 
@@ -29,5 +33,5 @@ data = input('Enter data: ')
 
 sock.send(data.encode())
 print(f'Client send data: {data}')
-b_response = sock.recv(1024)
+b_response = sock.recv(default_config.get('buffersize'))
 print(b_response.decode())
