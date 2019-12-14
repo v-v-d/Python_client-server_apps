@@ -3,6 +3,8 @@ import json
 from socket import socket
 from argparse import ArgumentParser
 
+from project.server.protocol import validate_request, make_response
+
 parser = ArgumentParser()
 
 parser.add_argument(
@@ -39,14 +41,24 @@ try:
         b_request = client.recv(default_config.get('buffersize'))
         request = json.loads(b_request.decode())
 
-        action = request.get('action')
-        data = request.get('data')
+        if validate_request(request):
+            action = request.get('action')
+            data = request.get('data')
 
-        if action == 'echo':
-            print(f'Client send message: {data}')
-            client.send(b_request)
+            if action == 'echo':
+                try:
+                    print(f'Client send message: {data}')
+                    response = make_response(request, 200, data)
+                except Exception as error:
+                    response = make_response(request, 500, 'Internal server error')
+            else:
+                response = make_response(request, 404, f'Action with name {action} not supported')
         else:
-            print(f'Action {action} does not support')
+            response = make_response(request, 400, 'Wrong request format')
+
+        client.send(
+            json.dumps(response).encode()
+        )
 
         client.close()
 
