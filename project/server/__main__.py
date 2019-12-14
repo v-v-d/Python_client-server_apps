@@ -1,6 +1,9 @@
 import yaml
+import json
 from socket import socket
 from argparse import ArgumentParser
+
+from project.server.protocol import validate_request, make_response
 
 parser = ArgumentParser()
 
@@ -36,8 +39,27 @@ try:
         client, address = sock.accept()
         print(f'Client was connected with {address[0]}:{address[1]}')
         b_request = client.recv(default_config.get('buffersize'))
-        print(f'Client send message: {b_request.decode()}')
-        client.send(b_request)
+        request = json.loads(b_request.decode())
+
+        if validate_request(request):
+            action = request.get('action')
+            data = request.get('data')
+
+            if action == 'echo':
+                try:
+                    print(f'Client send message: {data}')
+                    response = make_response(request, 200, data)
+                except Exception as error:
+                    response = make_response(request, 500, 'Internal server error')
+            else:
+                response = make_response(request, 404, f'Action with name {action} not supported')
+        else:
+            response = make_response(request, 400, 'Wrong request format')
+
+        client.send(
+            json.dumps(response).encode()
+        )
+
         client.close()
 
 except KeyboardInterrupt:
