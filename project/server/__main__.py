@@ -1,4 +1,5 @@
 import yaml
+import json
 from socket import socket
 from argparse import ArgumentParser
 
@@ -36,8 +37,17 @@ try:
         client, address = sock.accept()
         print(f'Client was connected with {address[0]}:{address[1]}')
         b_request = client.recv(default_config.get('buffersize'))
-        print(f'Client send message: {b_request.decode()}')
-        client.send(b_request)
+        request = json.loads(b_request.decode())
+
+        action = request.get('action')
+        data = request.get('data')
+
+        if action == 'echo':
+            print(f'Client send message: {data}')
+            client.send(b_request)
+        else:
+            print(f'Action {action} does not support')
+
         client.close()
 
 except KeyboardInterrupt:

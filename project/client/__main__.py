@@ -1,4 +1,5 @@
 import yaml
+import json
 from socket import socket
 from argparse import ArgumentParser
 
@@ -29,9 +30,16 @@ sock.connect(
 
 print('Client was started')
 
+action = input('Enter action: ')
 data = input('Enter data: ')
 
-sock.send(data.encode())
+request = {
+    'action': action,
+    'data': data,
+}
+
+s_request = json.dumps(request)
+
+sock.send(s_request.encode())
 print(f'Client send data: {data}')
 b_response = sock.recv(default_config.get('buffersize'))
-print(b_response.decode())
