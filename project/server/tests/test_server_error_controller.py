@@ -28,9 +28,14 @@ def request_fixture():
     }
 
 
-def test_valid_server_date_controller(request_fixture):
+@pytest.fixture
+def error_fixture():
+    return 'Server error message'
+
+
+def test_valid_server_date_controller(request_fixture, error_fixture):
     try:
         response = server_error_controller(request_fixture)
     except Exception as error:
         response = error
-    return response == 'Server error message'
+    return response == error_fixture
