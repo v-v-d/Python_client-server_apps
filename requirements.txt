@@ -2,4 +2,8 @@ jupyter
 jupyterthemes
 chardet
 requests
+
 pyyaml
+pytest
+pytest-cov
+fabric3
