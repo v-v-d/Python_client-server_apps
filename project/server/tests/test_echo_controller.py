@@ -28,6 +28,8 @@ def request_fixture():
     }
 
 
-def test_valid_echo_controller(request_fixture, data_fixture):
+def test_valid_echo_controller(request_fixture, action_fixture, time_fixture, data_fixture):
     response = echo_controller(request_fixture)
-    return response.get('data') == data_fixture
+    return response.get('action') == action_fixture and \
+           response.get('data') == data_fixture and \
+           response.get('time') == time_fixture
