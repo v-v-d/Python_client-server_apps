@@ -1,5 +1,6 @@
 import yaml
 import json
+import hashlib
 import logging
 from socket import socket
 from datetime import datetime
@@ -36,6 +37,11 @@ sock.connect(
 
 logger.info('Client was started')
 
+hash_obj = hashlib.sha256()
+hash_obj.update(
+    str(datetime.now().timestamp()).encode()
+)
+
 action = input('Enter action: ')
 data = input('Enter data: ')
 
@@ -43,6 +49,7 @@ request = {
     'action': action,
     'time': datetime.now().timestamp(),
     'data': data,
+    'token': hash_obj.hexdigest(),
 }
 
 s_request = json.dumps(request)
