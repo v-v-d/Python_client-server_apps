@@ -1,5 +1,5 @@
 import yaml
-import json
+import select
 import logging
 from socket import socket
 from argparse import ArgumentParser
@@ -38,26 +38,47 @@ logging.basicConfig(
     ]
 )
 
+requests = []
+connections = []
+
 try:
 
     sock = socket()
     sock.bind((host, port,))
+    # Для винды устанавливаем таймаут, чтобы завелся select.select(). С пустым списком connections будет
+    # OSError: [WinError 10022] An invalid argument was supplied. При этом надо успеть за этот таймаут подключиться
+    # клиентом к серверу. Этот костыль онли для отладки на винде
+    sock.settimeout(10)
+    # В боевом режиме устанавливаем таймаут в 0
+    # sock.settimeout(0)
     sock.listen(5)
 
     logging.info(f'Server was started with {host}:{port}')
 
     while True:
-        client, address = sock.accept()
+        try:
+            client, address = sock.accept()
 
-        logging.info(f'Client was connected with {address[0]}:{address[1]}')
+            connections.append(client)
 
-        b_request = client.recv(default_config.get('buffersize'))
+            logging.info(f'Client was connected with {address[0]}:{address[1]} | connections: {connections}')
+        except:
+            pass
 
-        b_response = handle_default_request(b_request)
+        r_list, w_list, x_list = select.select(
+            connections, connections, connections, 0
+        )
 
-        client.send(b_response)
+        for r_client in r_list:
+            b_request = r_client.recv(default_config.get('buffersize'))
+            requests.append(b_request)
 
-        client.close()
+        if requests:
+            b_request = requests.pop()
+            b_response = handle_default_request(b_request)
+
+            for w_client in w_list:
+                w_client.send(b_response)
 
 except KeyboardInterrupt:
     logging.info('Server shutdown')
