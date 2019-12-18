@@ -8,4 +8,14 @@ def compression_middleware(func):
         b_request = zlib.decompress(request)
         b_response = func(b_request, *args, **kwargs)
         return zlib.compress(b_response)
+    return
+
+
+def encryption_middleware(func):
+    @wraps(func)
+    def wrapper(request, *args, **kwargs):
+        # decryption text
+        b_response = func(request, *args, **kwargs)
+        # encryption text
+        return b_response
     return wrapper
