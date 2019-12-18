@@ -4,8 +4,7 @@ import logging
 from socket import socket
 from argparse import ArgumentParser
 
-from protocol import validate_request, make_response
-from resolvers import resolve
+from handlers import handle_default_request
 
 parser = ArgumentParser()
 
@@ -52,28 +51,10 @@ try:
         logging.info(f'Client was connected with {address[0]}:{address[1]}')
 
         b_request = client.recv(default_config.get('buffersize'))
-        request = json.loads(b_request.decode())
 
-        if validate_request(request):
-            action_name = request.get('action')
-            controller = resolve(action_name)
-            if controller:
-                try:
-                    logging.debug(f'Controller {action_name} resolved with request {request}')
-                    response = controller(request)
-                except Exception as error:
-                    logging.critical(f'Controller {action_name} rejected. Error: {error}')
-                    response = make_response(request, 500, 'Internal server error')
-            else:
-                logging.error(f'Controller {action_name} not found')
-                response = make_response(request, 404, f'Action with name {action_name} not supported')
-        else:
-            logging.error(f'Controller wrong request: {request}')
-            response = make_response(request, 400, 'Wrong request format')
+        b_response = handle_default_request(b_request)
 
-        client.send(
-            json.dumps(response).encode()
-        )
+        client.send(b_response)
 
         client.close()
 
