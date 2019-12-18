@@ -3,10 +3,11 @@ import logging
 
 from resolvers import resolve
 from protocol import validate_request, make_response
-from middlewares import compression_middleware
+from middlewares import compression_middleware, encryption_middleware
 
 
 @compression_middleware
+@encryption_middleware
 def handle_default_request(raw_request):
     request = json.loads(raw_request.decode())
 

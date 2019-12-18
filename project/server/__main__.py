@@ -6,6 +6,7 @@ from argparse import ArgumentParser
 
 from handlers import handle_default_request
 
+
 parser = ArgumentParser()
 
 parser.add_argument(
