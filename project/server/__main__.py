@@ -1,11 +1,11 @@
 import yaml
-import json
+import select
 import logging
 from socket import socket
 from argparse import ArgumentParser
 
-from protocol import validate_request, make_response
-from resolvers import resolve
+from handlers import handle_default_request
+
 
 parser = ArgumentParser()
 
@@ -38,44 +38,47 @@ logging.basicConfig(
     ]
 )
 
+requests = []
+connections = []
+
 try:
 
     sock = socket()
     sock.bind((host, port,))
+    # Для винды устанавливаем таймаут, чтобы завелся select.select(). С пустым списком connections будет
+    # OSError: [WinError 10022] An invalid argument was supplied. При этом надо успеть за этот таймаут подключиться
+    # клиентом к серверу. Этот костыль онли для отладки на винде
+    sock.settimeout(10)
+    # В боевом режиме устанавливаем таймаут в 0
+    # sock.settimeout(0)
     sock.listen(5)
 
     logging.info(f'Server was started with {host}:{port}')
 
     while True:
-        client, address = sock.accept()
+        try:
+            client, address = sock.accept()
 
-        logging.info(f'Client was connected with {address[0]}:{address[1]}')
+            connections.append(client)
 
-        b_request = client.recv(default_config.get('buffersize'))
-        request = json.loads(b_request.decode())
+            logging.info(f'Client was connected with {address[0]}:{address[1]} | connections: {connections}')
+        except:
+            pass
 
-        if validate_request(request):
-            action_name = request.get('action')
-            controller = resolve(action_name)
-            if controller:
-                try:
-                    logging.debug(f'Controller {action_name} resolved with request {request}')
-                    response = controller(request)
-                except Exception as error:
-                    logging.critical(f'Controller {action_name} rejected. Error: {error}')
-                    response = make_response(request, 500, 'Internal server error')
-            else:
-                logging.error(f'Controller {action_name} not found')
-                response = make_response(request, 404, f'Action with name {action_name} not supported')
-        else:
-            logging.error(f'Controller wrong request: {request}')
-            response = make_response(request, 400, 'Wrong request format')
-
-        client.send(
-            json.dumps(response).encode()
+        r_list, w_list, x_list = select.select(
+            connections, connections, connections, 0
         )
 
-        client.close()
+        for r_client in r_list:
+            b_request = r_client.recv(default_config.get('buffersize'))
+            requests.append(b_request)
+
+        if requests:
+            b_request = requests.pop()
+            b_response = handle_default_request(b_request)
+
+            for w_client in w_list:
+                w_client.send(b_response)
 
 except KeyboardInterrupt:
     logging.info('Server shutdown')

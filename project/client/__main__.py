@@ -1,3 +1,4 @@
+import zlib
 import yaml
 import json
 import hashlib
@@ -7,11 +8,45 @@ from datetime import datetime
 from argparse import ArgumentParser
 
 
+def write(sock):
+    hash_obj = hashlib.sha256()
+    hash_obj.update(
+        str(datetime.now().timestamp()).encode()
+    )
+
+    action = input('Enter action: ')
+    data = input('Enter data: ')
+
+    request = {
+        'action': action,
+        'time': datetime.now().timestamp(),
+        'data': data,
+        'token': hash_obj.hexdigest(),
+    }
+
+    s_request = json.dumps(request)
+    b_request = zlib.compress(s_request.encode())
+    sock.send(b_request)
+    logging.info(f'Client send request: {s_request}')
+
+
+def read(sock):
+    compressed_response = sock.recv(default_config.get('buffersize'))
+
+    b_response = zlib.decompress(compressed_response)
+
+    logging.info(f'Client got response: {b_response.decode()}')
+
+
 parser = ArgumentParser()
 
 parser.add_argument(
     '-c', '--config', type=str,
     required=False, help='Sets config file path'
+)
+parser.add_argument(
+    '-m', '--mode', type=str, default='r',
+    required=False, help='Sets client mode'
 )
 
 args = parser.parse_args()
@@ -44,24 +79,13 @@ sock.connect(
 
 logging.info('Client was started')
 
-hash_obj = hashlib.sha256()
-hash_obj.update(
-    str(datetime.now().timestamp()).encode()
-)
+try:
+    while True:
+        if args.mode == 'w':
+            write(sock)
 
-action = input('Enter action: ')
-data = input('Enter data: ')
-
-request = {
-    'action': action,
-    'time': datetime.now().timestamp(),
-    'data': data,
-    'token': hash_obj.hexdigest(),
-}
-
-s_request = json.dumps(request)
-
-sock.send(s_request.encode())
-logging.info(f'Client send request: {s_request}')
-b_response = sock.recv(default_config.get('buffersize'))
-logging.info(f'Client got response: {b_response.decode()}')
+        elif args.mode == 'r':
+            read(sock)
+except KeyboardInterrupt:
+    sock.close()
+    print('Client shutdown')
