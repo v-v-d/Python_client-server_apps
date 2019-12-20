@@ -1,10 +1,28 @@
 import yaml
 import select
 import logging
+import threading
 from socket import socket
 from argparse import ArgumentParser
 
 from handlers import handle_default_request
+
+
+def read(sock, connections, requests, buffersize):
+    try:
+        bytes_request = sock.recv(buffersize)
+    except Exception:
+        connections.remove(sock)
+    else:
+        if bytes_request:
+            requests.append(bytes_request)
+
+
+def write(sock, connections, response):
+    try:
+        sock.send(response)
+    except Exception:
+        connections.remove(sock)
 
 
 parser = ArgumentParser()
@@ -48,7 +66,7 @@ try:
     # Для винды устанавливаем таймаут, чтобы завелся select.select(). С пустым списком connections будет
     # OSError: [WinError 10022] An invalid argument was supplied. При этом надо успеть за этот таймаут подключиться
     # клиентом к серверу. Этот костыль онли для отладки на винде
-    sock.settimeout(10)
+    sock.settimeout(2)
     # В боевом режиме устанавливаем таймаут в 0
     # sock.settimeout(0)
     sock.listen(5)
@@ -70,15 +88,20 @@ try:
         )
 
         for r_client in r_list:
-            b_request = r_client.recv(default_config.get('buffersize'))
-            requests.append(b_request)
+            r_thread = threading.Thread(
+                target=read, args=(r_client, connections, requests, default_config.get('buffersize'))
+            )
+            r_thread.start()
 
         if requests:
             b_request = requests.pop()
             b_response = handle_default_request(b_request)
 
             for w_client in w_list:
-                w_client.send(b_response)
+                w_thread = threading.Thread(
+                    target=write, args=(w_client, connections, b_response)
+                )
+                w_thread.start()
 
 except KeyboardInterrupt:
     logging.info('Server shutdown')
