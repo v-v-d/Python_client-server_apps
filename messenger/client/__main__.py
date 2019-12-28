@@ -11,7 +11,7 @@ from argparse import ArgumentParser
 class ClientConfig:
     def __init__(self):
         self._config_kwargs = {'host': '127.0.0.1', 'port': 8000}
-        self.set_config_kwargs()
+        self.set_config_kwargs()  # TODO: Сделать проверку на валидность
 
     @staticmethod
     def get_config_file():
@@ -46,26 +46,44 @@ class Client:
         self._port = ClientConfig().config_kwargs.get('port', 8000)  # TODO: Сделать проверку на валидность
         self._socket = socket()
 
+    def start_session(self):
+        self._connect()
+        try:
+            self._read()
+            self._write()
+        except KeyboardInterrupt:
+            self._disconnect()
+
     def _connect(self):
         self._socket.connect((self._host, self._port))
         print('Client was started')
 
-    def _single_threaded_read(self):
-        while True:
-            compressed_response = self._socket.recv(self.buffersize)
-            b_response = zlib.decompress(compressed_response)
-            print(f'Client got response: {b_response.decode()}')
-
     def _read(self):
-        Thread(target=self._single_threaded_read).start()
+        Thread(target=self._read_by_single_thread).start()
 
-    @staticmethod
-    def _get_token():
-        hash_obj = hashlib.sha256()
-        hash_obj.update(
-            str(datetime.now().timestamp()).encode()
-        )
-        return hash_obj.hexdigest()
+    def _read_by_single_thread(self):
+        while True:
+            print(f'Client got response: {self._get_b_response().decode()}')
+
+    def _get_b_response(self):
+        return zlib.decompress(self._get_compressed_response())
+
+    def _get_compressed_response(self):
+        return self._socket.recv(self.buffersize)
+
+    def _write(self):
+        while True:
+            self._send_request()
+
+    def _send_request(self):
+        self._socket.send(self._get_compressed_b_request())
+        print(f'Client send request')
+
+    def _get_compressed_b_request(self):
+        return zlib.compress(self._get_s_request().encode())
+
+    def _get_s_request(self):
+        return json.dumps(self._get_request())
 
     def _get_request(self):
         return {
@@ -75,31 +93,17 @@ class Client:
             'token': self._get_token(),
         }
 
-    def _get_s_request(self):
-        return json.dumps(self._get_request())
-
-    def _get_b_request(self):
-        return zlib.compress(self._get_s_request().encode())
-
-    def _send_request(self):
-        self._socket.send(self._get_b_request())
-        print(f'Client send request')
-
-    def _write(self):
-        while True:
-            self._send_request()
+    @staticmethod
+    def _get_token():
+        hash_obj = hashlib.sha256()
+        hash_obj.update(
+            str(datetime.now().timestamp()).encode()
+        )
+        return hash_obj.hexdigest()
 
     def _disconnect(self):
         self._socket.close()
         print('Client shutdown')
-
-    def start_session(self):
-        self._connect()
-        try:
-            self._read()
-            self._write()
-        except KeyboardInterrupt:
-            self._disconnect()
 
 
 if __name__ == '__main__':

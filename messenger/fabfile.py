@@ -6,7 +6,7 @@ def server():
 
 
 def client():
-    local(f'python client')
+    local(f'python client -c config.yml')
 
 
 def test():
