@@ -46,7 +46,7 @@ class Client:
         self._port = ClientConfig().config_kwargs.get('port', 8000)  # TODO: Сделать проверку на валидность
         self._socket = socket()
 
-    def _connection(self):
+    def _connect(self):
         self._socket.connect((self._host, self._port))
         print('Client was started')
 
@@ -89,17 +89,17 @@ class Client:
         while True:
             self._send_request()
 
-    def _close_connection(self):
+    def _disconnect(self):
         self._socket.close()
+        print('Client shutdown')
 
     def start_session(self):
-        self._connection()
+        self._connect()
         try:
             self._read()
             self._write()
         except KeyboardInterrupt:
-            self._close_connection()
-            print('Client shutdown')
+            self._disconnect()
 
 
 if __name__ == '__main__':
