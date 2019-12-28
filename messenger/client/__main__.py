@@ -8,13 +8,44 @@ from datetime import datetime
 from argparse import ArgumentParser
 
 
-class ClientConfig:
+class TypedProperty:
+    def __init__(self, name, type_name, default=None):
+        self.name = f'_{name}'
+        self.type = type_name
+        self.default = default if default else type_name()
+
+    def __get__(self, instance, cls):
+        return getattr(instance, self.name, self.default)
+
+    def __set__(self, instance, value):
+        if not isinstance(value, self.type):
+            raise TypeError(f'Value must be str type {self.type}')
+        setattr(instance, self.name, value)
+
+    def __delete__(self, instance):
+        raise AttributeError('Unable to delete attribute')
+
+
+class ClientConfigFromCLI:
     def __init__(self):
-        self._config_kwargs = {'host': '127.0.0.1', 'port': 8000}
-        self.set_config_kwargs()  # TODO: Сделать проверку на валидность
+        self._host = '127.0.0.1'
+        self._port = 8000
+        self._set_config()
+
+    def _set_config(self):
+        config = self._get_config_from_file()
+        if config:
+            self._host = config.get('host')
+            self._port = int(config.get('port'))
+
+    def _get_config_from_file(self):
+        args = self._get_args()
+        if args.config:
+            with open(args.config) as file:
+                return yaml.load(file, Loader=yaml.Loader)
 
     @staticmethod
-    def get_config_file():
+    def _get_args():
         parser = ArgumentParser()
         parser.add_argument(
             '-c', '--config', type=str,
@@ -22,28 +53,20 @@ class ClientConfig:
         )
         return parser.parse_args()
 
-    def get_kwargs_from_file(self):
-        config_file = self.get_config_file()
-        if config_file.config:
-            with open(config_file.config) as file:
-                config_file = yaml.load(file, Loader=yaml.Loader)
-                return config_file
-
-    def set_config_kwargs(self):
-        config_kwargs = self.get_kwargs_from_file()
-        if config_kwargs:
-            self._config_kwargs = config_kwargs
+    @property
+    def host(self):
+        return self._host
 
     @property
-    def config_kwargs(self):
-        return self._config_kwargs
+    def port(self):
+        return self._port
 
 
 class Client:
     def __init__(self, buffersize=1024):
         self.buffersize = buffersize
-        self._host = ClientConfig().config_kwargs.get('host', '127.0.0.1')  # TODO: Сделать проверку на валидность
-        self._port = ClientConfig().config_kwargs.get('port', 8000)  # TODO: Сделать проверку на валидность
+        self.host = TypedProperty('host', str, '127.0.0.1')
+        self.port = TypedProperty('port', int, 8000)
         self._socket = socket()
 
     def start_session(self):
@@ -55,7 +78,7 @@ class Client:
             self._disconnect()
 
     def _connect(self):
-        self._socket.connect((self._host, self._port))
+        self._socket.connect((self.host, self.port))
         print('Client was started')
 
     def _read(self):
@@ -107,10 +130,11 @@ class Client:
 
 
 if __name__ == '__main__':
-    client = Client()
-    client.start_session()
+    config = ClientConfigFromCLI()
 
-    # TODO: Добавить дескриптор атрибутов для класса Client
+    client = Client()
+    client.host, client.port = config.host, config.port
+    client.start_session()
 
 # def read(sock, buffersize):
 #     while True:
