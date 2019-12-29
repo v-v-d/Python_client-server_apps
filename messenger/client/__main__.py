@@ -26,7 +26,7 @@ class TypedProperty:
         raise AttributeError('Unable to delete attribute')
 
 
-class ClientConfigFromCLI:
+class ConfigFromCLI:
     def __init__(self):
         self._host = '127.0.0.1'
         self._port = 8000
@@ -69,7 +69,7 @@ class Client:
         self.port = TypedProperty('port', int, 8000)
         self._socket = socket()
 
-    def start_session(self):
+    def run(self):
         self._connect()
         try:
             self._read()
@@ -79,7 +79,7 @@ class Client:
 
     def _connect(self):
         self._socket.connect((self.host, self.port))
-        print('Client was started')
+        print(f'Client was started with {self.host}:{self.port}')
 
     def _read(self):
         Thread(target=self._read_by_single_thread).start()
@@ -130,11 +130,11 @@ class Client:
 
 
 if __name__ == '__main__':
-    config = ClientConfigFromCLI()
+    config = ConfigFromCLI()
 
     client = Client()
     client.host, client.port = config.host, config.port
-    client.start_session()
+    client.run()
 
 # def read(sock, buffersize):
 #     while True:
