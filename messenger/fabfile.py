@@ -2,11 +2,11 @@ from fabric.api import local
 
 
 def server():
-    local('python server')
+    local('python server -c config.yml')
 
 
 def client():
-    local(f'python client')
+    local(f'python client -c config.yml')
 
 
 def test():
