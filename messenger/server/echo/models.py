@@ -4,8 +4,6 @@ from sqlalchemy import (
     )
 from sqlalchemy.orm import mapper
 
-from ..models import users
-
 
 engine = create_engine('sqlite:///messenger.db')
 
