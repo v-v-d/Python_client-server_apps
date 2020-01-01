@@ -1,11 +1,11 @@
 jupyter
 jupyterthemes
+fabric3
+
 chardet
 requests
-
 pyyaml
 pytest
 pytest-cov
-fabric3
-
 tabulate
+sqlalchemy
