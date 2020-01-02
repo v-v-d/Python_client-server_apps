@@ -1,9 +1,6 @@
 import yaml
 import logging
 
-from threading import Thread
-from select import select
-from socket import socket
 from argparse import ArgumentParser
 
 from handlers import handle_default_request
