@@ -36,8 +36,9 @@ class Application:
     def run(self):
         self._connect()
         try:
-            self._read()
-            self._write()
+            while True:
+                self._read()
+                self._write()
         except KeyboardInterrupt:
             self._disconnect()
 
@@ -49,20 +50,15 @@ class Application:
         Thread(target=self._read_by_single_thread).start()
 
     def _read_by_single_thread(self):
-        while True:
-            print(f'Client got response: {self._get_b_response().decode()}')
+        print(f'Client got response: {self._get_response()}')
 
-    def _get_b_response(self):
-        return zlib.decompress(self._get_compressed_response())
+    def _get_response(self):
+        return zlib.decompress(self._get_compressed_b_response()).decode()
 
-    def _get_compressed_response(self):
+    def _get_compressed_b_response(self):
         return self._socket.recv(self.buffersize)
 
     def _write(self):
-        while True:
-            self._send_request()
-
-    def _send_request(self):
         self._socket.send(self._get_compressed_b_request())
         print(f'Client send request')
 
