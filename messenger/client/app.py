@@ -73,15 +73,9 @@ class Application:
         return json.dumps(self._get_request())
 
     def _get_request(self):
-        return make_request(self._get_action(), self._get_data(), self._get_token())
-
-    @staticmethod
-    def _get_action():
-        return input('Enter action: ')
-
-    @staticmethod
-    def _get_data():
-        return input('Enter data: ')
+        action = input('Enter action: ')
+        data = input('Enter data: ')
+        return make_request(action, data, self._get_token())
 
     @staticmethod
     def _get_token():
