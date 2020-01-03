@@ -47,13 +47,13 @@ logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('main.log', encoding='UTF-8'),
+        logging.FileHandler('server.log', encoding='UTF-8'),
         logging.StreamHandler(),
     ]
 )
 
 config = ConfigFromCLI()
 
-app = Application(handle_default_request)
-app.host, app.port = config.host, config.port
-app.run()
+with Application(handle_default_request) as app:
+    app.host, app.port = config.host, config.port
+    app.run()
