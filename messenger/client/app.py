@@ -1,6 +1,7 @@
 import zlib
 import json
 import hashlib
+import logging
 from threading import Thread
 from socket import socket
 from datetime import datetime
@@ -31,26 +32,38 @@ class Application:
         self.buffersize = buffersize
         self.host = TypedProperty('host', str, '127.0.0.1')
         self.port = TypedProperty('port', int, 8000)
-        self._socket = socket()
+        self._socket = None
+
+    # Методы __enter__ и __exit__ для работы с контекстным менеджером 'with'
+    def __enter__(self):
+        if not self._socket:
+            self._socket = socket()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        message = 'Client shutdown'
+        if exc_type:
+            if exc_type is not KeyboardInterrupt:
+                message = 'Client stopped with error'
+        logging.info(message)
+        self._socket.close()
+        return True
 
     def run(self):
         self._connect()
-        try:
-            while True:
-                self._read()
-                self._write()
-        except KeyboardInterrupt:
-            self._disconnect()
+        while True:
+            self._read()
+            self._write()
 
     def _connect(self):
         self._socket.connect((self.host, self.port))
-        print(f'Client was started with {self.host}:{self.port}')
+        logging.info(f'Client was started with {self.host}:{self.port}')
 
     def _read(self):
         Thread(target=self._read_by_single_thread).start()
 
     def _read_by_single_thread(self):
-        print(f'Client got response: {self._get_response()}')
+        logging.info(f'Client got response: {self._get_response()}')
 
     def _get_response(self):
         return zlib.decompress(self._get_compressed_b_response()).decode()
@@ -60,7 +73,7 @@ class Application:
 
     def _write(self):
         self._socket.send(self._get_compressed_b_request())
-        print(f'Client send request')
+        logging.info(f'Client send request')
 
     def _get_compressed_b_request(self):
         return zlib.compress(self._get_s_request().encode())
@@ -80,7 +93,3 @@ class Application:
             str(datetime.now().timestamp()).encode()
         )
         return hash_obj.hexdigest()
-
-    def _disconnect(self):
-        self._socket.close()
-        print('Client shutdown')

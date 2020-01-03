@@ -1,4 +1,5 @@
 import yaml
+import logging
 from argparse import ArgumentParser
 
 from app import Application
@@ -40,8 +41,17 @@ class ConfigFromCLI:
         return self._port
 
 
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('client.log', encoding='utf-8'),
+        logging.StreamHandler()
+    ]
+)
+
 config = ConfigFromCLI()
 
-app = Application()
-app.host, app.port = config.host, config.port
-app.run()
+with Application() as app:
+    app.host, app.port = config.host, config.port
+    app.run()
