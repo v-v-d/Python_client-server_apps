@@ -97,12 +97,13 @@ class Application:
 
     def _write(self):
         if self._requests:
+            response = self._handle_request()
             for client in self._w_list:
-                Thread(target=self._write_by_single_thread, args=(client, )).start()
+                Thread(target=self._write_by_single_thread, args=(client, response)).start()
 
-    def _write_by_single_thread(self, client):
+    def _write_by_single_thread(self, client, response):
         try:
-            client.send(self._handle_request())
+            client.send(response)
         except Exception:
             self._remove_client(client)
 
