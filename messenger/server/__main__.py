@@ -4,11 +4,13 @@ import logging
 from argparse import ArgumentParser
 
 from handlers import handle_default_request
+from database import database_metadata, engine
 from app import Application
 
 
 class ConfigFromCLI:
     def __init__(self):
+        self.is_db_migrated = False
         self._host = '127.0.0.1'
         self._port = 8000
         self._set_config()
@@ -21,6 +23,8 @@ class ConfigFromCLI:
 
     def _get_config_from_file(self):
         args = self._get_args()
+        if args.migrate:
+            self.is_db_migrated = True
         if args.config:
             with open(args.config) as file:
                 return yaml.load(file, Loader=yaml.Loader)
@@ -31,6 +35,9 @@ class ConfigFromCLI:
         parser.add_argument(
             '-c', '--config', type=str,
             required=False, help='Sets config file path'
+        )
+        parser.add_argument(
+            '-m', '--migrate', action='store_true'
         )
         return parser.parse_args()
 
@@ -53,6 +60,8 @@ logging.basicConfig(
 )
 
 config = ConfigFromCLI()
+if config.is_db_migrated:
+    database_metadata.create_all(engine)
 
 with Application(handle_default_request) as app:
     app.host, app.port = config.host, config.port

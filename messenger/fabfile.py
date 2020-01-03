@@ -5,6 +5,10 @@ def server():
     local('python server -c config.yml')
 
 
+def migrate():
+    local('python server -m')
+
+
 def client():
     local(f'python client -c config.yml')
 
