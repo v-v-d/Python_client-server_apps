@@ -5,6 +5,8 @@ from threading import Thread
 from socket import socket
 from datetime import datetime
 
+from protocol import make_request
+
 
 class TypedProperty:
     def __init__(self, name, type_name, default=None):
@@ -71,12 +73,15 @@ class Application:
         return json.dumps(self._get_request())
 
     def _get_request(self):
-        return {
-            'action': input('Enter action: '),
-            'time': datetime.now().timestamp(),
-            'data': input('Enter data: '),
-            'token': self._get_token(),
-        }
+        return make_request(self._get_action(), self._get_data(), self._get_token())
+
+    @staticmethod
+    def _get_action():
+        return input('Enter action: ')
+
+    @staticmethod
+    def _get_data():
+        return input('Enter data: ')
 
     @staticmethod
     def _get_token():
