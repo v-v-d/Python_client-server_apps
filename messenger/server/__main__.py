@@ -63,6 +63,7 @@ logging.basicConfig(
 
 config = ConfigFromCLI()
 if config.is_db_migrated:
+    # Импортируем модули models из всех приложений для того, чтобы выполнить Base.metadata.create_all()
     module_name_list = [f'{item}.models' for item in INSTALLED_MODULES]
     module_path_list = (os.path.join(BASE_DIR, item, 'models.py') for item in INSTALLED_MODULES)
     for index, path in enumerate(module_path_list):
