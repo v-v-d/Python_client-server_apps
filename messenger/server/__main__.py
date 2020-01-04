@@ -4,7 +4,7 @@ import logging
 from argparse import ArgumentParser
 
 from handlers import handle_default_request
-from database import database_metadata, engine
+from database import Base, engine
 from app import Application
 
 
@@ -61,8 +61,8 @@ logging.basicConfig(
 
 config = ConfigFromCLI()
 if config.is_db_migrated:
-    database_metadata.create_all(engine)
-
-with Application(handle_default_request) as app:
-    app.host, app.port = config.host, config.port
-    app.run()
+    Base.metadata.create_all(engine)
+else:
+    with Application(handle_default_request) as app:
+        app.host, app.port = config.host, config.port
+        app.run()
