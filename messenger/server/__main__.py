@@ -1,3 +1,4 @@
+import os
 import yaml
 import logging
 
@@ -6,6 +7,7 @@ from argparse import ArgumentParser
 from handlers import handle_default_request
 from database import Base, engine
 from app import Application
+from settings import INSTALLED_MODULES, BASE_DIR
 
 
 class ConfigFromCLI:
@@ -61,7 +63,12 @@ logging.basicConfig(
 
 config = ConfigFromCLI()
 if config.is_db_migrated:
-    Base.metadata.create_all(engine)
+    module_name_list = [f'{item}.models' for item in INSTALLED_MODULES]
+    module_path_list = (os.path.join(BASE_DIR, item, 'models.py') for item in INSTALLED_MODULES)
+    for index, path in enumerate(module_path_list):
+        if os.path.exists(path):
+            __import__(module_name_list[index])
+    Base.metadata.create_all()
 else:
     with Application(handle_default_request) as app:
         app.host, app.port = config.host, config.port
