@@ -11,8 +11,8 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     password = Column(String, nullable=False)
-    sessions = relationship('Session', backref='sessions')
-    messages = relationship('Message', backref='messages')
+    sessions = relationship('Session', back_populates='user')
+    messages = relationship('Message', back_populates='user')
 
 
 class Session(Base):
@@ -21,4 +21,4 @@ class Session(Base):
     id = Column(Integer, primary_key=True)
     created = Column(DateTime, default=datetime.now())
     user_id = Column(Integer, ForeignKey('users.id'))
-    user = relationship('User', back_populates='users')
+    user = relationship('User', back_populates='sessions')
