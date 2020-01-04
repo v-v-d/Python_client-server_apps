@@ -29,23 +29,34 @@ class Application:
         self.clients_qty = clients_qty
         self.host = TypedProperty('host', str, '127.0.0.1')
         self.port = TypedProperty('port', int, 8000)
-        self._socket = socket()
+        self._socket = None
         self._requests = list()
         self._connections = list()
         self._r_list = list()
         self._w_list = list()
         self._x_list = list()
 
+    # Методы __enter__ и __exit__ для работы с контекстным менеджером 'with'
+    def __enter__(self):
+        if not self._socket:
+            self._socket = socket()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        message = 'Server shutdown'
+        if exc_type:
+            if not exc_type is KeyboardInterrupt:
+                message = 'Server stopped with error'
+        logging.info(message)
+        return True
+
     def run(self):
-        try:
-            self.init_session()
-            while True:
-                self._accept_client()
-                self._handle_clients()
-                self._read()
-                self._write()
-        except KeyboardInterrupt:
-            logging.info('Server shutdown')
+        self.init_session()
+        while True:
+            self._accept_client()
+            self._handle_clients()
+            self._read()
+            self._write()
 
     def init_session(self):
         self._socket.bind((self.host, self.port, ))
@@ -97,12 +108,13 @@ class Application:
 
     def _write(self):
         if self._requests:
+            response = self._handle_request()
             for client in self._w_list:
-                Thread(target=self._write_by_single_thread, args=(client, )).start()
+                Thread(target=self._write_by_single_thread, args=(client, response)).start()
 
-    def _write_by_single_thread(self, client):
+    def _write_by_single_thread(self, client, response):
         try:
-            client.send(self._handle_request())
+            client.send(response)
         except Exception:
             self._remove_client(client)
 
