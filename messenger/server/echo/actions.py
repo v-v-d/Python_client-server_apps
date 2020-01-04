@@ -6,7 +6,7 @@ actionnames = [
         'controller': echo_controller,
     },
     {
-        'action': 'all_messages',
+        'action': 'messages',
         'controller': get_messages_controller,
     },
 ]
