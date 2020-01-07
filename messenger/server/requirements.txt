@@ -1,0 +1,9 @@
+fabric3
+
+chardet
+requests
+pyyaml
+pytest
+pytest-cov
+tabulate
+sqlalchemy
