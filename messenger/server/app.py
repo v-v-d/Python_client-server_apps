@@ -65,9 +65,9 @@ class Application:
         # Для винды устанавливаем таймаут, чтобы завелся select(). С пустым списком self._connections будет
         # OSError: [WinError 10022] An invalid argument was supplied. При этом надо успеть за этот таймаут подключиться
         # клиентом к серверу. Этот костыль онли для отладки на винде
+        # self._socket.settimeout(2)
         # В боевом режиме устанавливаем таймаут в 0
-        # self._socket.settimeout(0)
-        self._socket.settimeout(2)
+        self._socket.settimeout(0)
         self._socket.listen(self.clients_qty)
         logging.info(f'Server was started with {self.host}:{self.port}')
 
