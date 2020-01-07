@@ -52,6 +52,6 @@ logging.basicConfig(
 
 config = ConfigFromCLI()
 
-with Application() as app:
-    app.host, app.port = config.host, config.port
-    app.run()
+# with Application() as app:
+#     app.host, app.port = config.host, config.port
+#     app.run()

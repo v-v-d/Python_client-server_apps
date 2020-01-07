@@ -1,3 +1,4 @@
+import sys
 import zlib
 import json
 import hashlib
@@ -5,6 +6,7 @@ import logging
 from threading import Thread
 from socket import socket
 from datetime import datetime
+from PyQt5.QtWidgets import QApplication, QMainWindow
 
 from protocol import make_request
 
@@ -51,9 +53,17 @@ class Application:
 
     def run(self):
         self._connect()
-        while True:
-            self._read()
-            self._write()
+        self._read()
+
+        app = QApplication(sys.argv)
+
+        self._render()
+
+        sys.exit(app._exec())
+
+        # while True:
+        #     self._read()
+        #     self._write()
 
     def _connect(self):
         self._socket.connect((self.host, self.port))
@@ -71,25 +81,29 @@ class Application:
     def _get_compressed_b_response(self):
         return self._socket.recv(self.buffersize)
 
-    def _write(self):
-        self._socket.send(self._get_compressed_b_request())
-        logging.info(f'Client send request')
+    def _render(self):
+        window = QMainWindow()
+        window.show()
 
-    def _get_compressed_b_request(self):
-        return zlib.compress(self._get_s_request().encode())
-
-    def _get_s_request(self):
-        return json.dumps(self._get_request())
-
-    def _get_request(self):
-        action = input('Enter action: ')
-        data = input('Enter data: ')
-        return make_request(action, data, self._get_token())
-
-    @staticmethod
-    def _get_token():
-        hash_obj = hashlib.sha256()
-        hash_obj.update(
-            str(datetime.now().timestamp()).encode()
-        )
-        return hash_obj.hexdigest()
+    # def _write(self):
+    #     self._socket.send(self._get_compressed_b_request())
+    #     logging.info(f'Client send request')
+    #
+    # def _get_compressed_b_request(self):
+    #     return zlib.compress(self._get_s_request().encode())
+    #
+    # def _get_s_request(self):
+    #     return json.dumps(self._get_request())
+    #
+    # def _get_request(self):
+    #     action = input('Enter action: ')
+    #     data = input('Enter data: ')
+    #     return make_request(action, data, self._get_token())
+    #
+    # @staticmethod
+    # def _get_token():
+    #     hash_obj = hashlib.sha256()
+    #     hash_obj.update(
+    #         str(datetime.now().timestamp()).encode()
+    #     )
+    #     return hash_obj.hexdigest()
