@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  server:
+    build: ./server
+    command: python . -c config.yml
+    volumes:
+      - ./server:/app
+    ports:
+      - 8000
+
+  client:
+    build: ./client
+    command: python .
+    volumes:
+      - ./client:/app
+    depends_on:
+      - server
