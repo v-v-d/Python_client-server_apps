@@ -1,7 +1,12 @@
 import zlib
 import json
+import hmac
 from functools import wraps
 from Cryptodome.Cypher import AES
+
+from protocol import make_response
+from auth.models import User
+from database import Session
 
 
 def compression_middleware(func):
@@ -33,6 +38,28 @@ def encryption_middleware(func):
         encrypted_response = decrypted_response.copy()
         encrypted_response['data'] = encrypted_data
         return json.dumps(encrypted_response).encode()
+    return wrapper
+
+
+def auth_middleware(func):
+    @wraps(func)
+    def wrapper(request, *args, **kwargs):
+        request_obj = json.loads(request)
+        login = request_obj.get('login')
+        token = request_obj.get('token')
+        time = request_obj.get('time')
+
+        session = Session()
+        user = session.query(User).filter_by(name=login).first()
+
+        if user:
+            digest = hmac.new(time, user.password)
+
+            if hmac.compare_digest(digest, token):
+                return func(request, *args, **kwargs)
+
+        response = make_response(request, 401, 'Access denied')
+        return json.dumps(response).encode()
     return wrapper
 
 
