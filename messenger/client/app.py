@@ -59,7 +59,7 @@ class Application:
 
         self._render()
 
-        sys.exit(app._exec())
+        sys.exit(app.exec_())
 
         # while True:
         #     self._read()

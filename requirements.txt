@@ -9,3 +9,4 @@ pytest
 pytest-cov
 tabulate
 sqlalchemy
+PyQt5
