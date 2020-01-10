@@ -10,3 +10,4 @@ pytest-cov
 tabulate
 sqlalchemy
 PyQt5
+pycryptodome
