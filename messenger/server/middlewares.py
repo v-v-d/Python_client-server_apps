@@ -2,7 +2,7 @@ import zlib
 import json
 import hmac
 from functools import wraps
-from Cryptodome.Cypher import AES
+from Crypto.Cipher import AES
 
 from protocol import make_response
 from auth.models import User
