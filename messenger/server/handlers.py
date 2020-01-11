@@ -3,7 +3,8 @@ import logging
 
 from resolvers import resolve
 from protocol import validate_request, make_response
-from middlewares import compression_middleware, encryption_middleware
+from middlewares import compression_middleware
+from security.middlewares import encryption_middleware
 
 
 @compression_middleware
