@@ -9,6 +9,7 @@ from .models import Message
 def echo_controller(request):
     data = request.get('data')
     session = Session()
+    # message = Message(data=data.get('text'))
     message = Message(data=data)
     session.add(message)
     session.commit()

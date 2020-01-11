@@ -47,7 +47,7 @@ class Application:
         if exc_type:
             if not exc_type is KeyboardInterrupt:
                 message = 'Server stopped with error'
-        logging.info(message)
+        logging.info(message, exc_info=exc_val)
         return True
 
     def run(self):
