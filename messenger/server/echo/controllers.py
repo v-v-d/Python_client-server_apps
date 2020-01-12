@@ -9,8 +9,8 @@ from .models import Message
 def echo_controller(request):
     data = request.get('data')
     session = Session()
-    # message = Message(data=data.get('text'))
-    message = Message(data=data)
+    message = Message(data=data.get('text'))
+    # message = Message(data=data)
     session.add(message)
     session.commit()
     session.close()
@@ -45,3 +45,5 @@ def get_messages_controller(request):
     session = Session()
     messages = [{'data': item.data, 'created': item.created.timestamp()} for item in session.query(Message).all()]
     return make_response(request, 200, messages)
+
+# TODO: Реализовать контроллеры через session_scope()
