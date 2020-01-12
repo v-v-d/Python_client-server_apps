@@ -117,7 +117,7 @@ class Application:
 
     def _get_request(self):
         action = input('Enter action: ')
-        data = input('Enter data: ')
+        data = json.loads(input('Enter data: '))
         return make_request(action, data, self._get_token())
 
     @staticmethod
