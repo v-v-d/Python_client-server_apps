@@ -1,11 +1,3 @@
 {
-  "orders": [
-    {
-      "item": "product",
-      "quantity": 10,
-      "price": 100500,
-      "buyer": "Ivan",
-      "date": "12.12.2019"
-    }
-  ]
+    "orders": []
 }
