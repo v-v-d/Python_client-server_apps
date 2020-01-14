@@ -1,3 +1,4 @@
+"""Middlewares for security module."""
 from functools import wraps
 
 from Crypto.Cipher import AES
@@ -7,6 +8,7 @@ from .settings import MESSAGE_PATTERN
 
 
 def encryption_middleware(func):
+    """Decrypt encrypted request and make and encrypt response."""
     @wraps(func)
     def wrapper(encrypted_request, *args, **kwargs):
         nonce, encrypted_request = get_chunk(encrypted_request, 16)
