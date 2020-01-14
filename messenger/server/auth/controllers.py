@@ -1,3 +1,4 @@
+"""Controllers for auth module."""
 import hmac
 from datetime import datetime
 
@@ -11,6 +12,7 @@ from .models import User, Session
 
 
 def login_controller(request):
+    """Login user if request is valid and user exist."""
     data = request.get('data')
     errors = _get_validation_errors(request, 'time')
     errors.update(_get_validation_errors(data, 'password', 'login'))
@@ -26,6 +28,7 @@ def login_controller(request):
 
 
 def registration_controller(request):
+    """Register and login user if request is valid."""
     data = request.get('data')
     errors = _get_validation_errors(data, 'password', 'login')
     if errors:
@@ -42,6 +45,7 @@ def registration_controller(request):
 
 
 def _get_validation_errors(request, *attributes):
+    """Get errors if request is invalid."""
     errors = {}
     [errors.update({attribute: 'Attribute is required'}) for attribute in attributes if attribute not in request]
     return errors
@@ -49,6 +53,7 @@ def _get_validation_errors(request, *attributes):
 
 @login_required
 def logout_controller(request):
+    """Logout user."""
     with session_scope() as db_session:
         user_session = db_session.query(Session).filter_by(token=request.get('token')).first()
         user_session.closed = datetime.now()

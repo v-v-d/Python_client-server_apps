@@ -1,3 +1,4 @@
+"""Decorators for auth module."""
 from functools import wraps
 
 from protocol import make_response
@@ -7,6 +8,7 @@ from .models import Session
 
 
 def login_required(func):
+    """Check that user is logged in based on the valid token exists in request."""
     @wraps(func)
     def wrapper(request, *args, **kwargs):
         if 'token' not in request:

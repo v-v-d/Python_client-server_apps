@@ -1,3 +1,4 @@
+"""Utility functions for auth module."""
 import hmac
 import hashlib
 
@@ -7,6 +8,7 @@ from .models import User, Session
 
 
 def authenticate(login, password):
+    """Authenticate user based on valid login and password."""
     with session_scope() as db_session:
         user = db_session.query(User).filter_by(name=login).first()
         hmac_obj = hmac.new(SECRET_KEY.encode(), password.encode())
@@ -17,6 +19,7 @@ def authenticate(login, password):
 
 
 def login(request, user):
+    """Make session (logging in) and get token for user."""
     with session_scope() as db_session:
         hash_obj = hashlib.sha256()
         hash_obj.update(SECRET_KEY.encode())
