@@ -1,5 +1,6 @@
-from protocol import make_response
+"""Controllers for servererror module."""
 
 
-def server_error_controller(request):
+def server_error_controller():
+    """Raise server error message exception."""
     raise Exception('Server error message')
