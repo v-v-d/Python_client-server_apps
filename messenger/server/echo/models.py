@@ -1,3 +1,4 @@
+"""Models for echo module."""
 from datetime import datetime
 from sqlalchemy import Column, Integer, DateTime, String, ForeignKey
 from sqlalchemy.orm import relationship
