@@ -1,3 +1,4 @@
+"""Database connection module for server side messenger app."""
 from contextlib import contextmanager
 
 from sqlalchemy import MetaData, create_engine
@@ -14,6 +15,7 @@ Session = sessionmaker(bind=engine)
 
 @contextmanager
 def session_scope():
+    """Database connection context manager."""
     session = Session()
     try:
         yield session

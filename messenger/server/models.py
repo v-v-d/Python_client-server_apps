@@ -1,3 +1,4 @@
+"""Models for server side messenger app."""
 from sqlalchemy import (
     create_engine, Table, String,
     Integer, MetaData, Column, ForeignKey
