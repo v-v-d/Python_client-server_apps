@@ -1,4 +1,4 @@
-Messenger server API
+server
 ======
 
 .. toctree::
@@ -18,4 +18,3 @@ Messenger server API
    serverdate
    servererrors
    settings
-   tests
