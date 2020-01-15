@@ -1,6 +1,7 @@
-import yaml
 import logging
 from argparse import ArgumentParser
+
+import yaml
 
 from app import Application
 
@@ -52,6 +53,6 @@ logging.basicConfig(
 
 config = ConfigFromCLI()
 
-# with Application() as app:
-#     app.host, app.port = config.host, config.port
-#     app.run()
+with Application() as app:
+    app.host, app.port = config.host, config.port
+    app.run()

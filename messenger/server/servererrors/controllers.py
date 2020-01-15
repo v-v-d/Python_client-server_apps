@@ -1,8 +1,6 @@
-from protocol import make_response
-
-from decorators import login_required
+"""Controllers for servererror module."""
 
 
-@login_required
-def server_error_controller(request):
+def server_error_controller():
+    """Raise server error message exception."""
     raise Exception('Server error message')

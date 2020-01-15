@@ -1,14 +1,17 @@
+"""Handlers for server side messenger application."""
 import json
 import logging
 
 from resolvers import resolve
 from protocol import validate_request, make_response
-from middlewares import compression_middleware, encryption_middleware
+from middlewares import compression_middleware
+from security.middlewares import encryption_middleware
 
 
 @compression_middleware
 @encryption_middleware
 def handle_default_request(raw_request):
+    """Make response based on request."""
     request = json.loads(raw_request.decode())
 
     if validate_request(request):
