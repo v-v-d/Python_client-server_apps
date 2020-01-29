@@ -11,7 +11,7 @@ def echo_controller(request):
     """Make echo response based on request data."""
     data = request.get('data')
     with session_scope() as session:
-        message = Message(data=data.get('text'))
+        message = Message(data=data.get('data'))
         session.add(message)
     return make_response(request, 200, data)
 

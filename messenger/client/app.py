@@ -8,12 +8,17 @@ from threading import Thread
 from socket import socket
 from datetime import datetime
 
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QDesktopWidget, QTextEdit,
+    QPushButton, QVBoxLayout, QHBoxLayout, QWidget
+)
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 
 from protocol import make_request
 from utils import get_chunk
+
+# TODO: Добавить имя юзера в отрендеренное сообщение
 
 
 class TypedProperty:
@@ -65,16 +70,8 @@ class Application:
     def run(self):
         """Run the client."""
         self._connect()
-        while True:
-            self._read()
-            self._write()
-        # self._read()
-        #
-        # app = QApplication(sys.argv)
-        #
-        # self._render()
-        #
-        # sys.exit(app.exec_())
+        self._read()
+        self._render()
 
     def _connect(self):
         """Connect to server with host and port attributes."""
@@ -86,8 +83,11 @@ class Application:
         Thread(target=self._read_by_single_thread).start()
 
     def _read_by_single_thread(self):
-        """Logging the reading response."""
-        logging.info(f'Client got response: {self._get_decrypted_response()}')
+        """Logging the reading response and render message in window text area."""
+        while True:
+            raw_response = self._get_decrypted_response()
+            logging.info(f'Client got response: {raw_response}')
+            self._render_message(json.loads(raw_response))
 
     def _get_decrypted_response(self):
         """Get decrypted response with Crypto module and decode it."""
@@ -106,15 +106,58 @@ class Application:
         """Get compressed bytes response."""
         return self._socket.recv(self.buffersize)
 
-    @staticmethod
-    def _render():
+    def _render_message(self, response):
+        """Render message in window text area."""
+        data = response.get('data').get('data')
+        time = datetime.fromtimestamp(response.get('time')).strftime("%d/%m/%Y %H:%M:%S")
+        self.display_text.append(f'{time}\n{data}\n')
+
+    def _render(self):
         """Show GUI window."""
+        app = QApplication(sys.argv)
         window = QMainWindow()
+        window.setMinimumSize(400, 600)
+        window.setWindowTitle('Python Messenger')
+
+        central_widget = QWidget()
+
+        self.display_text = QTextEdit()
+        self.display_text.setReadOnly(True)
+        self.enter_text = QTextEdit()
+        self.send_button = QPushButton('Send', window)
+        self.enter_text.setMaximumHeight(64)
+        self.send_button.setMaximumHeight(64)
+
+        base_layout = QVBoxLayout()
+        top_layout = QHBoxLayout()
+        footer_layout = QHBoxLayout()
+
+        top_layout.addWidget(self.display_text)
+        footer_layout.addWidget(self.enter_text)
+        footer_layout.addWidget(self.send_button)
+
+        base_layout.addLayout(top_layout)
+        base_layout.addLayout(footer_layout)
+
+        central_widget.setLayout(base_layout)
+        window.setCentralWidget(central_widget)
+
+        dsc_widget = QDesktopWidget()
+        geometry = dsc_widget.availableGeometry()
+        center_position = geometry.center()
+        frame_geometry = window.frameGeometry()
+        frame_geometry.moveCenter(center_position)
+        window.move(frame_geometry.topLeft())
+
+        self.send_button.clicked.connect(self._write)
+
         window.show()
+        sys.exit(app.exec_())
 
     def _write(self):
         """Send compressed bytes request to server."""
         self._socket.send(self._get_compressed_b_request())
+        self.enter_text.clear()
         logging.info(f'Client send request')
 
     def _get_compressed_b_request(self):
@@ -136,8 +179,8 @@ class Application:
 
     def _get_request(self):
         """Get request from client via inputs."""
-        action = input('Enter action: ')
-        data = json.loads(input('Enter data: '))
+        action = 'echo'
+        data = {'data': self.enter_text.toPlainText()}
         return make_request(action, data, self._get_token())
 
     @staticmethod
