@@ -1,5 +1,5 @@
 FROM python:3.6
-COPY . /app
+COPY ../../src/client /app
 WORKDIR /app
 RUN apt-get update \
     && apt-get install -y \

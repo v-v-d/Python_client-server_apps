@@ -15,8 +15,8 @@ from PyQt5.QtWidgets import (
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 
-from protocol import make_request
-from utils import get_chunk
+from src.protocol import make_request
+from src.utils import get_chunk
 
 # TODO: Добавить имя юзера в отрендеренное сообщение
 

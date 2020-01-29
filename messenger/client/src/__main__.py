@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 
 import yaml
 
-from app import Application
+from src.app import Application
 
 
 class ConfigFromCLI:
@@ -46,7 +46,7 @@ logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('client.log', encoding='utf-8'),
+        logging.FileHandler('../../src/client/client.log', encoding='utf-8'),
         logging.StreamHandler()
     ]
 )
