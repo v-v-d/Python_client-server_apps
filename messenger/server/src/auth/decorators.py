@@ -1,9 +1,9 @@
 """Decorators for auth module."""
 from functools import wraps
 
-from protocol import make_response
+from src.protocol import make_response
 
-from database import session_scope
+from src.database import session_scope
 from .models import Session
 
 

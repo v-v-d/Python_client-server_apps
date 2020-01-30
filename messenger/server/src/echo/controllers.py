@@ -1,7 +1,7 @@
 """Controllers for echo module."""
-from protocol import make_response
-from database import Session, session_scope
-from decorators import logged
+from src.protocol import make_response
+from src.database import session_scope
+from src.decorators import logged
 
 from .models import Message
 

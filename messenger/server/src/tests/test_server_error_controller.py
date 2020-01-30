@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 
-from servererrors.controllers import server_error_controller
+from src.servererrors import server_error_controller
 
 
 @pytest.fixture

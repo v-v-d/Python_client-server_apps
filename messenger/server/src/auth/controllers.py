@@ -2,8 +2,8 @@
 import hmac
 from datetime import datetime
 
-from database import session_scope
-from protocol import make_response
+from src.database import session_scope
+from src.protocol import make_response
 
 from .decorators import login_required
 from .utils import authenticate, login

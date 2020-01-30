@@ -1,6 +1,6 @@
 """Resolvers for server side messenger app."""
 from functools import reduce
-from settings import INSTALLED_MODULES
+from src.settings import INSTALLED_MODULES
 
 
 def get_server_actions():

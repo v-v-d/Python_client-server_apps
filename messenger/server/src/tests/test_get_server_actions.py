@@ -1,7 +1,7 @@
 import pytest
 
-from settings import INSTALLED_MODULES
-from resolvers import get_server_actions
+from src.settings import INSTALLED_MODULES
+from src.resolvers import get_server_actions
 
 
 @pytest.fixture

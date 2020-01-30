@@ -1,7 +1,7 @@
 import pytest
 
-from resolvers import resolve
-from echo.controllers import echo_controller
+from src.resolvers import resolve
+from src.echo.controllers import echo_controller
 
 
 @pytest.fixture

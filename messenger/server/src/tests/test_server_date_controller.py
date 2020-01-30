@@ -1,12 +1,12 @@
 import pytest
 from datetime import datetime
 
-from protocol import make_response
+from src.serverdate.controllers import server_date_controller
 
 
 @pytest.fixture
 def action_fixture():
-    return 'test_action'
+    return 'serverdate'
 
 
 @pytest.fixture
@@ -16,12 +16,7 @@ def time_fixture():
 
 @pytest.fixture
 def data_fixture():
-    return datetime.now().timestamp()
-
-
-@pytest.fixture
-def code_fixture():
-    return 200
+    return ''
 
 
 @pytest.fixture
@@ -33,6 +28,6 @@ def request_fixture():
     }
 
 
-def test_valid_make_response(request_fixture, code_fixture, data_fixture):
-    response = make_response(request_fixture, code_fixture, data_fixture)
-    assert response.get('code') == code_fixture
+def test_valid_server_date_controller(request_fixture, time_fixture):
+    response = server_date_controller(request_fixture)
+    return response.get('time') == time_fixture

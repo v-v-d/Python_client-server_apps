@@ -1,6 +1,6 @@
 import pytest
 
-from protocol import validate_request
+from src.protocol import validate_request
 
 
 @pytest.fixture

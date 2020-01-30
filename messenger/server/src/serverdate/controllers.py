@@ -1,8 +1,8 @@
 """Controllers for serverdate module"""
 from datetime import datetime
 
-from decorators import logged
-from protocol import make_response
+from src.decorators import logged
+from src.protocol import make_response
 
 
 @logged

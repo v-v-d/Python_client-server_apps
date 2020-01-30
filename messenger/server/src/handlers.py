@@ -2,10 +2,10 @@
 import json
 import logging
 
-from resolvers import resolve
-from protocol import validate_request, make_response
-from middlewares import compression_middleware
-from security.middlewares import encryption_middleware
+from src.resolvers import resolve
+from src.protocol import validate_request, make_response
+from src.middlewares import compression_middleware
+from src.security import encryption_middleware
 
 
 @compression_middleware

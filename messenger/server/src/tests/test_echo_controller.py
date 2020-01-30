@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 
-from echo.controllers import echo_controller
+from src.echo.controllers import echo_controller
 
 
 @pytest.fixture

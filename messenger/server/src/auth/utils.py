@@ -2,7 +2,7 @@
 import hmac
 import hashlib
 
-from database import session_scope
+from src.database import session_scope
 from .settings import SECRET_KEY
 from .models import User, Session
 

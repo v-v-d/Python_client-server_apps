@@ -3,8 +3,7 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, DateTime, String, ForeignKey
 from sqlalchemy.orm import relationship
 
-from database import Base
-from auth.models import User    # Нужен для того, чтобы sqlalchemy увидела эту модель в relationship
+from src.database import Base
 
 
 class Message(Base):

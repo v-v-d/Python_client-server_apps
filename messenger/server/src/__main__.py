@@ -5,10 +5,10 @@ import logging
 
 from argparse import ArgumentParser
 
-from handlers import handle_default_request
-from database import Base, engine
-from app import Application
-from settings import INSTALLED_MODULES, BASE_DIR
+from src.handlers import handle_default_request
+from src.database import Base
+from src.app import Application
+from src.settings import INSTALLED_MODULES, BASE_DIR
 
 
 class ConfigFromCLI:
@@ -64,7 +64,7 @@ logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('server.log', encoding='UTF-8'),
+        logging.FileHandler('../../src/server/server.log', encoding='UTF-8'),
         logging.StreamHandler(),
     ]
 )
